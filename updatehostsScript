@@ -1,0 +1,54 @@
+#! /bin/sh
+
+rm -f hosts.[0-9]*
+
+cat << __EOF | while read LIST; do COUNT=$(( ${COUNT} + 1 )); curl -g "${LIST}" | sed -e s/$'\r'//g 1> hosts.${COUNT}; done
+http://adaway.org/hosts.txt
+http://netcologne.dl.sourceforge.net/project/adzhosts/FORADAWAY.txt
+http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&mimetype=plaintext
+http://someonewhocares.org/hosts/hosts
+http://winhelp2002.mvps.org/hosts.txt
+http://www.malwaredomainlist.com/hostslist/hosts.txt
+https://raw.githubusercontent.com/StevenBlack/hosts/master/data/StevenBlack/hosts
+__EOF
+
+cat hosts.[0-9]* \
+  | grep -v '^#' \
+  | grep -v '^$' \
+  | awk '{print $2}' \
+  | sort -u -f \
+  | while read I
+    do
+      echo 0.0.0.0 ${I}
+    done | sed 1d 1> hosts
+	for i in `cat whitelist`; 
+		do grep -v $i hosts > hoststemp; mv hoststemp hosts
+	done
+
+    sh -c 'cat myhosts hosts > hosts.merge'; mv hosts.merge hosts
+
+# need to remove whitelist hosts from the files
+# need to merge with copy of existing/original hostfile
+
+# =========================================================
+# need at end to have the hosts flushed and service restarted
+
+# for mac
+# sudo dscacheutil -flushcache;sudo killall -HUP mDNSResponder
+
+# for unix and others
+
+# Debian/Ubuntu 
+# sudo /etc/rc.d/init.d/nscd restart
+
+#Linux with systemd: 
+# sudo systemctl restart network.service
+
+#Fedora Linux: 
+# sudo systemctl restart NetworkManager.service
+
+#Arch Linux/Manjaro with Network Manager: 
+# sudo systemctl restart NetworkManager.service
+
+#Arch Linux/Manjaro with Wicd: 
+# sudo systemctl restart wicd.service
