@@ -1,8 +1,9 @@
-#! /bin/sh
+#!/bin/sh
 
+cd /tmp
 rm -f hosts.[0-9]*
 
-cat << __EOF | while read LIST; do COUNT=$(( ${COUNT} + 1 )); curl -g "${LIST}" | sed -e s/$'\r'//g 1> hosts.${COUNT}; done
+cat << __EOF | while read LIST; do COUNT=$(( ${COUNT} + 1 )); curl -g "${LIST}" | sed -e s/$'\r'//g 1> /tmp/hosts.${COUNT}; done
 http://adaway.org/hosts.txt
 http://netcologne.dl.sourceforge.net/project/adzhosts/FORADAWAY.txt
 http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&mimetype=plaintext
@@ -12,7 +13,7 @@ http://www.malwaredomainlist.com/hostslist/hosts.txt
 https://raw.githubusercontent.com/StevenBlack/hosts/master/data/StevenBlack/hosts
 __EOF
 
-cat hosts.[0-9]* \
+cat /tmp/hosts.[0-9]* \
   | grep -v '^#' \
   | grep -v '^$' \
   | awk '{print $2}' \
@@ -20,21 +21,22 @@ cat hosts.[0-9]* \
   | while read I
     do
       echo 0.0.0.0 ${I}
-    done | sed 1d 1> hosts
-	for i in `cat whitelist`; 
-		do grep -v $i hosts > hoststemp; mv hoststemp hosts
+    done | sed 1d 1> /tmp/hosts
+	for i in `cat /Users/gtsewell77/hostsupdate/GTShostsUpdate/whitelist`; 
+		do grep -v $i /tmp/hosts > /tmp/hoststemp; mv /tmp/hoststemp /tmp/hosts
 	done
 
-    sh -c 'cat myhosts hosts > hosts.merge'; mv hosts.merge hosts
+    sh -c 'cat /Users/gtsewell77/hostsupdate/GTShostsUpdate/myhosts /tmp/hosts > /tmp/hosts.merge'; mv /tmp/hosts.merge /tmp/hosts
 
-# need to remove whitelist hosts from the files
-# need to merge with copy of existing/original hostfile
+# copy / overwrite the hosts file at /etc/hosts
+
+cp /tmp/hosts /etc/hosts
 
 # =========================================================
 # need at end to have the hosts flushed and service restarted
 
 # for mac
-# sudo dscacheutil -flushcache;sudo killall -HUP mDNSResponder
+sudo dscacheutil -flushcache;sudo killall -HUP mDNSResponder
 
 # for unix and others
 
