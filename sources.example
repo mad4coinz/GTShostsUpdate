@@ -1,0 +1,10 @@
+# Blocklists to merge, one URL per line (hosts-file format: "0.0.0.0 host").
+# Copy to `sources` to change them. StevenBlack's unified list already combines
+# AdAway, MVPS, Peter Lowe's (yoyo), Dan Pollock's (someonewhocares), URLhaus and others.
+https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+
+# Originals from the first version of this script, still online (mostly duplicates of the above):
+# https://adaway.org/hosts.txt
+# https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&mimetype=plaintext
+# https://someonewhocares.org/hosts/hosts
+# https://winhelp2002.mvps.org/hosts.txt
